@@ -2,7 +2,7 @@ const BaseCommand = require('../../utils/structures/BaseCommand');
 const fs = require('fs');
 const { send } = require('process');
 const { waitForDebugger } = require('inspector');
-var userData = JSON.parse(fs.readFileSync('./storage/userData.json', 'utf8'));
+const userData = JSON.parse(fs.readFileSync('./storage/userData.json', 'utf8'));
 
 module.exports = class KillCommand extends BaseCommand {
   constructor() {
@@ -16,17 +16,25 @@ module.exports = class KillCommand extends BaseCommand {
     var diceRoll2 = Math.floor( Math.random() * 6 ) +1; //Rolls two D6.
     var sumRoll = diceRoll1 + diceRoll2;
 
-    if (!userData[murderer]) userData[murderer] = { //If they haven't attempted a murder, this will add them to the list.
+    if (!userData[murderer]) userData[murderer] = { //If they haven't been in the system, this will add them to the list.
         murderAttempt: 0,
         murderSuccess: 0,
         deathAttempt: 0,
-        deathSuccess: 0
+        deathSuccess: 0,
+        suicideAttempt: 0,
+        suicideSuccess: 0,
+        reviveAttempt: 0,
+        reviveSuccess: 0
     }
-    if (!userData[victim]) userData[victim] = { //If they haven't been attempted to get killed yet, this will add them to the list.
+    if (!userData[victim]) userData[victim] = { //If they haven't been in the system, this will add them to the list.
         murderAttempt: 0,
         murderSuccess: 0,
         deathAttempt: 0,
-        deathSuccess: 0
+        deathSuccess: 0,
+        suicideAttempt: 0,
+        suicideSuccess: 0,
+        reviveAttempt: 0,
+        reviveSuccess: 0
     }
 
     if (victim !== undefined) { //Checks if user mentioned anyone in their kill command.
@@ -34,27 +42,25 @@ module.exports = class KillCommand extends BaseCommand {
         userData[victim].deathAttempt++;
 
         if (sumRoll == 12) {
-            userData[murderer].murderSuccess++;
-            userData[murderer].murderSuccess++;
-            userData[victim].deathSuccess++;
-            userData[victim].deathSuccess++;
-            fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou have critically murdered. <@'+ victim + '> has died ' + userData[victim].deathSuccess + ' time(s).'); //Crit roll.
+            userData[murderer].murderSuccess+=2;
+            userData[victim].deathSuccess+=2;
+            //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL MURDER.**\n<@' + victim + '> has died twice.'); //Crit roll.
 
         } else if (sumRoll >= 8){
             userData[murderer].murderSuccess++;
             userData[victim].deathSuccess++;
-            fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou have successfully murdered. <@'+ victim + '> has died ' + userData[victim].deathSuccess + ' time(s).'); //High roll.
+            //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have successfully murdered <@' + victim + '>.'); //High roll.
         
         } else if (sumRoll >= 3){
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou have failed your murder attempt.'); //Low roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have failed your murder attempt.'); //Low roll.
 
         } else if (sumRoll == 2){
             userData[murderer].deathAttempt++;
             userData[murderer].deathSuccess++;
-            fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou have critically failed. You die. <@'+ murderer + '> has died ' + userData[murderer].deathSuccess + ' time(s).'); //Crit fail.
+            //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL FAILURE.** You die.'); //Crit fail.
         }
     } else {
         message.channel.send('You did not mention anyone. Please try again.')
@@ -63,4 +69,5 @@ module.exports = class KillCommand extends BaseCommand {
     fs.writeFile('./storage/userData.json', JSON.stringify(userData), (err) => { //Records murder stat.
         if(err) console.error(err);
     });
-}}   
+    }
+}   

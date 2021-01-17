@@ -24,7 +24,8 @@ module.exports = class KillCommand extends BaseCommand {
         suicideAttempt: 0,
         suicideSuccess: 0,
         reviveAttempt: 0,
-        reviveSuccess: 0
+        reviveSuccess: 0,
+        layer: 0
     }
     if (!userData[victim]) userData[victim] = { //If they haven't been in the system, this will add them to the list.
         murderAttempt: 0,
@@ -34,7 +35,8 @@ module.exports = class KillCommand extends BaseCommand {
         suicideAttempt: 0,
         suicideSuccess: 0,
         reviveAttempt: 0,
-        reviveSuccess: 0
+        reviveSuccess: 0,
+        layer: 0
     }
 
     if (victim !== undefined) { //Checks if user mentioned anyone in their kill command.
@@ -44,23 +46,35 @@ module.exports = class KillCommand extends BaseCommand {
         if (sumRoll == 12) {
             userData[murderer].murderSuccess+=2;
             userData[victim].deathSuccess+=2;
+            userData[victim].layer+=2;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL MURDER.**\n<@' + victim + '> has died twice.'); //Crit roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll +'**.'+
+                                 '\n**CRITICAL MURDER.**'+
+                                 '\n<@' + victim + '> has died twice.'); //Crit roll.
 
         } else if (sumRoll >= 8){
             userData[murderer].murderSuccess++;
             userData[victim].deathSuccess++;
+            userData[victim].layer++;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have successfully murdered <@' + victim + '>.'); //High roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll +'**.'+
+                                 '\nYou have successfully murdered <@' + victim + '>.'); //High roll.
         
         } else if (sumRoll >= 3){
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have failed your murder attempt.'); //Low roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. ' +
+                                 '\nYou rolled a **' + sumRoll +'**.'+
+                                 '\nYou have failed your murder attempt.'); //Low roll.
 
         } else if (sumRoll == 2){
             userData[murderer].deathAttempt++;
             userData[murderer].deathSuccess++;
+            userData[murderer].layer++;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL FAILURE.** You die.'); //Crit fail.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll + '**.'+
+                                 '\n**CRITICAL FAILURE.** You die.'); //Crit fail.
         }
     } else {
         message.channel.send('You did not mention anyone. Please try again.')

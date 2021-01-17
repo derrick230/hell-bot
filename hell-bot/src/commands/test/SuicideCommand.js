@@ -23,7 +23,8 @@ module.exports = class SuicideCommand extends BaseCommand {
           suicideAttempt: 0,
           suicideSuccess: 0,
           reviveAttempt: 0,
-          reviveSuccess: 0
+          reviveSuccess: 0,
+          layer: 0
       }
 
         userData[suicide].deathAttempt++;
@@ -31,28 +32,38 @@ module.exports = class SuicideCommand extends BaseCommand {
         if (sumRoll == 12) {
             userData[suicide].suicideSuccess+=2;
             userData[suicide].deathSuccess+=2;
+            userData[suicide].layer+=2;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL SUICIDE.**'); //Crit roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll + '**.'+
+                                 '\n**CRITICAL SUICIDE.**'); //Crit roll.
 
         } else if (sumRoll >= 8){
             userData[suicide].suicideSuccess++;
             userData[suicide].deathSuccess++;
+            userData[suicide].layer++;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have successfully killed yourself.'); //High roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll + '**.'+
+                                 '\nYou have successfully killed yourself.'); //High roll.
         
         } else if (sumRoll >= 3){
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\nYou have failed your suicide attempt.'); //Low roll.
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll + '**.'+
+                                 '\nYou have failed your suicide attempt.'); //Low roll.
 
         } else if (sumRoll == 2){
             userData[suicide].deathSuccess--;
+            userData[suicide].layer--;
             //fs.writeFile('./storage/userData.json', JSON.stringify(userData));
-            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. \nYou rolled a **' + sumRoll + '**.\n**CRITICAL FAILURE.** You revive.'); //Crit fail.
-        } else {
-            message.channel.send('Error.')
-        }
+            message.channel.send('You rolled a '+ diceRoll1 +' and ' + diceRoll2 +'. '+
+                                 '\nYou rolled a **' + sumRoll + '**.'+
+                                 '\n**CRITICAL FAILURE.** You revive.'); //Crit fail.
+        } 
 
     fs.writeFile('./storage/userData.json', JSON.stringify(userData), (err) => { //Records murder stat.
         if(err) console.error(err);
     });
+
     }
 }
